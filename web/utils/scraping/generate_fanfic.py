@@ -37,11 +37,11 @@ def get_link(ui_fandom):
 #TODO: WEEK 2 (OPTIONAL) potential helper function for get_fanfic_info 
 # returns true if fanfic card {type beautiful soup} is in the given language <string>, false otherwise
 def is_language(fanfic, language):
-    return 
+    return
 
 #TODO: WEEK 2 Deliberable finish this function ! I have some very loose guide lines for you, feel free to follow them or start from scratch! 
 # returns an array of two eleents: 1) an array of all the authors whose fanfiction we scraped; 2. specified {number} fanfics (or all fanfic availiable if the total fanfic is less than the number) of word range {min_length}to {max_length}
-# in {language} from the given {fandom} in an array of dicts where the dicts are the formatted fanfic traning data 
+# in {language} from the given {fandom} in an array of dicts where the dicts are the formatted fanfic traning data
 #hint: how can we use ao3's preexisting filtering system to help us out, and get us some of the fanfic that we want! 
 def get_fanfic_info(fandom, number, language, min_length, max_length):
     counter = 0

@@ -29,9 +29,8 @@ def generate_category_links():
 #TODO:? a potential helper function, optional! 
 # returns an array of {"name":"fandom_name", "link":"fandom_link"} for all fandoms
 def get_all_fandoms():
-    result_dict = {}
     category_links = generate_category_links()
-
+    final_result = []
     for category in category_links:
         cat_html = requests.get(category)
         cat_text = cat_html.text
@@ -45,9 +44,13 @@ def get_all_fandoms():
             else: 
                 name = str(result.groups(0)[0])
                 link = ao3_domain + i["href"]
-                result_dict[name] = link
-
-    return [result_dict]
+            
+            result_dict = {}
+            result_dict["name"] = name
+            result_dict ["link"] = link
+            final_result.append(result_dict)
+    
+    return final_result
 
 #TODO:? a potential helper function, optional! 
 # returns an array of {"name":"fandom_name", "link":"fandom_link"} for the top most written fandoms in each category
@@ -60,23 +63,25 @@ def get_top_fandoms():
 
     soup = BeautifulSoup(fandoms_text, 'lxml')
     categories = soup.findAll('a',attrs={'class':'tag'})
+    # print(categories)
 
-    top_fan_dict = {}
-
+    final_result = []
     for i in range(len(categories)):
         name_content = categories[i].contents[0]
+        # print(name_content)
         link = top_fandoms + categories[i]["href"]
-        # top_fan_dict[name] = link
 
         result = re.search(r"\|(.*)", name_content)
         if result == None:
             name = categories[i].contents[0]
         else: 
-            name = str(result.groups(0)[0])
-            link = ao3_domain + categories[i]["href"]
-            top_fan_dict[name] = link
+            name = result.groups(0)[0]
+        top_fan_dict = {}
+        top_fan_dict["name"] = name
+        top_fan_dict["link"] = link
+        final_result.append(top_fan_dict)
 
-    return [top_fan_dict]
+    return final_result
 
 #TODO: Week One deliverable ! it's to write a function that will populate fandoms.json 
 # creates fandoms.json file in the json folder with all fandoms and top fandoms in the listed format: '*shoudln't return anything'
