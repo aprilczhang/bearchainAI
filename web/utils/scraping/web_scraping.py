@@ -69,7 +69,7 @@ def get_top_fandoms():
     for i in range(len(categories)):
         name_content = categories[i].contents[0]
         # print(name_content)
-        link = top_fandoms + categories[i]["href"]
+        link = ao3_domain + categories[i]["href"]
 
         result = re.search(r"\|(.*)", name_content)
         if result == None:
