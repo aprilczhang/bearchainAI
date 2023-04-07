@@ -18,6 +18,7 @@ def generate_category_links():
     soup = BeautifulSoup(main_text, 'lxml')
     menu_sec = soup.find('div', class_="browse module")
 
+    # print(soup)
     categories = menu_sec.find_all("a")
 
     category_links = []
@@ -83,6 +84,40 @@ def get_top_fandoms():
 
     return final_result
 
+
+# main_html = requests.get("https://archiveofourown.org/tags/Haikyuu!!/works")
+# main_text = main_html.text
+
+# soup = BeautifulSoup(main_text, 'lxml')
+
+# print(soup.find("a", rel="next").get("href"))
+# all_articles = soup.find_all("li", role="article")
+# test_first = all_articles[10] 
+# # print(test_first)
+# lang = test_first.find_all("dd", class_="language")
+# word_count = test_first.find_all("dd", class_="words")
+# author = test_first.find("a", rel="author").get_text()
+# heading = test_first.find("h4", class_="heading").find("a").get("href")
+
+# link = ao3_domain + heading
+# # print(link)
+
+# page_html = requests.get(link)
+# page_soup = BeautifulSoup(page_html.text, "lxml") 
+# block = page_soup.find_all("div", class_="userstuff module")
+# tags = page_soup.find_all("a", class_="tag")
+# # print(tags)
+# tags_list = ""
+# for i in tags:
+#     tags_list += " " + i.get_text()
+
+# print(tags_list)
+# # print(tags_)
+# # print(len(block))
+# for b in block:
+#     text = b.get_text()
+#     # print(text)
+
 #TODO: Week One deliverable ! it's to write a function that will populate fandoms.json 
 # creates fandoms.json file in the json folder with all fandoms and top fandoms in the listed format: '*shoudln't return anything'
 # {
@@ -111,4 +146,4 @@ def gen_fandom_json():
     
     out_file.close()
 
-gen_fandom_json() # <-- uncomment this and run the file to update or create fandoms.json
+#gen_fandom_json() # <-- uncomment this and run the file to update or create fandoms.json

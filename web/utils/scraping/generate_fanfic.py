@@ -21,9 +21,9 @@ ao3_domain = "https://archiveofourown.org"
 # openai.api_key = os.getenv("OPENAI_API_KEY") #uncomment whe we start using open ai
 
 # NUM_TRAINING_FANFIC = 10 #can change for testing! 
-JSON_PATH = "put path of json here" #TODO: week 2 this is just a good global var to have, please use it 
+JSON_PATH = "/Users/aprilzhang/Desktop/bearchainAI/web/json"
 
-#a potential helper function for you to use -- also an exmaple of how to open and load jsons! 
+#a potential helper function for you to use -- also an example of how to open and load jsons! 
 # given a fandom <string>, it returns a link <string> for that fandom's fanfics
 def get_link(ui_fandom):
     fandoms_json = open(f"{JSON_PATH}/fandoms.json")
@@ -34,66 +34,129 @@ def get_link(ui_fandom):
         if fandom["name"] == ui_fandom:
             return fandom["link"]
 
+
 #TODO: WEEK 2 (OPTIONAL) potential helper function for get_fanfic_info 
 # returns true if fanfic card {type beautiful soup} is in the given language <string>, false otherwise
 def is_language(fanfic, language):
     return
 
 #TODO: WEEK 2 Deliberable finish this function ! I have some very loose guide lines for you, feel free to follow them or start from scratch! 
-# returns an array of two eleents: 1) an array of all the authors whose fanfiction we scraped; 2. specified {number} fanfics (or all fanfic availiable if the total fanfic is less than the number) of word range {min_length}to {max_length}
-# in {language} from the given {fandom} in an array of dicts where the dicts are the formatted fanfic traning data
+# returns an array of two elements: 1) an array of all the authors whose fanfiction we scraped; 2. specified {number} fanfics (or all fanfic availiable if the total fanfic is less than the number) of word range {min_length}to {max_length}
+# in {language} from the given {fandom} in an array of dicts where the dicts are the formatted fanfic training data
 #hint: how can we use ao3's preexisting filtering system to help us out, and get us some of the fanfic that we want! 
 def get_fanfic_info(fandom, number, language, min_length, max_length):
     counter = 0
     fanfics = []
     authors = []
 
-    sort_by = f"maybe some filtering..."  
-    link = get_link(fandom) + sort_by
+    # sort_by = f"maybe some filtering..."  
+    link = get_link(fandom) #+ sort_by
 
     while counter < number and link != "":
         html = requests.get(link)
         soup = BeautifulSoup(html.text, "lxml")
-
         #some handling for when the site crashes, you can modify this chunk of code to fit into the code you write, or keep as is 
         site_down = soup.find("p", string=re.compile("Retry later"))
+
         while site_down != None:
-            time.sleep(60) #wait 60 then retry 
+            time.sleep(60) #wait 60 then retry
             html = requests.get(link)
             soup = BeautifulSoup(html.text, "lxml")
             site_down = soup.find("p", string=re.compile("Retry later"))
+        
+        
+        all_articles = soup.find_all("li", role="article")
+        # print(len(all_articles))
+        for article in all_articles:
+            if counter == number:
+                break
+            lang = article.find_all("dd", class_="language")[0].get_text()
+            word_count = int(article.find("dd", class_="words").get_text().replace(",", ""))
+            # print(word_count.get_text())
+            # print(lang.get_text())
 
-      
-                # check valid author and fanfic/is a fanfic you want to add 
-                # more formatting? getting data you want? 
-                # formatting training data
+            if lang == language and word_count > min_length and word_count < max_length:
+                print(word_count)
+                print(lang)
+
+                author = article.find("a", rel="author").get_text()
+                authors.append(author) 
+                page_link = article.find("h4", class_="heading").find("a").get("href")
                 
-        next_page = "get next potential page here"
-        if next_page != None:
-            link = "link for next page"
+                page_html = requests.get(ao3_domain + page_link)
+                # print(ao3_domain + page_link)
+               
+                page_soup = BeautifulSoup(page_html.text, "lxml")
+                # print(page_soup)
+                block = page_soup.find_all("div", class_="userstuff")
+                print(block)
+                tags = page_soup.find_all("a", class_="tag")
+                tags_list = ""
+                
+                for i in tags:
+                    tags_list += " " + i.get_text()
+
+                text = ""
+                for b in block:
+                    text = b.get_text()
+                
+
+                dict = {}
+
+                dict["prompt"] = "write a story about " + fandom + ", " + tags_list
+                dict ["completion"] = " " + text + "<<EOFANFIC>>"
+        ############################
+                fanfics.append(dict)
+
+                counter += 1
+            # check valid author and fanfic/is a fanfic you want to add 
+            # more formatting? getting data you want? 
+            # formatting training data
+        
+        next_page = soup.find("a", rel="next")
+        if next_page != None: 
+            link = ao3_domain + next_page.get("href")
         else:
             link = ""
 
     return [authors, fanfics]
 
+
 #TODO: WEEK 4 (OPTIONAL) potential helper function!
 # returns true if FineTuning the model of {model_id} is still running/processing, false once succeeded
 def still_running(model_id):
-    return 
+    response = openai.FineTune.retrieve(id=model_id)
+    status = response["status"]
+    if status == "succeeded": 
+        return False
+    else: 
+        return True
 
 #TODO: WEEK 4 (OPTIONAL) potential helper function!
 # returns full fanfic text <string> given {fanfic_link} <string> 
 def get_fanfic(fanfic_link):
+    
+
     return 
 
 #TODO: WEEK 4(OPTIONAL) potential helper function! 
 #creates a new fineTuned model, finetuned on {data}, that will be able to generate new fanfic from the specified {fandom}
-#returns the model id once the model is created (make sure you wait unti the model is created before you return the modelid)
+#returns the model id once the model is created (make sure you wait until the model is created before you return the modelid)
 def create_fineTuned_model(fandom, data): 
+    #this could be useful somewhere
+    # openai.Completion.create(
+    # model=FINE_TUNED_MODEL,
+    # prompt=YOUR_PROMPT) 
+    
     # converting training data to a jsonl
+    openai.fine_tunes.prepare_data(data)
     # upload jsonl file onto openAI systems 
+    
     # create fineTuned model request 
+
     # make sure our model is ready to use!
+
+
     return 
 
 #TODO: WEEK 4 deliverable 
