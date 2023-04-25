@@ -11,7 +11,7 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     const provider = new ethers.providers.JsonRpcProvider(__________);
-    const contract = new ethers.Contract(__________, __________, __________);
+    const contract = new ethers.Contract(contractAddress, __________, __________);
 
     let allKudos: Kudo[] = [];
     const totalAuthors = await contract.__________;
